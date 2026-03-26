@@ -157,7 +157,7 @@ def generate_contract_pdf(data, coach, pdf_path):
     pdf.ln(2)
     pdf._body_text(
         "L'atteinte de cet objectif dépend de l'implication du Client. Le Coach met tout en "
-        "œuvre pour l'accompagner, mais reste tenu a une obligation de moyens (et non de résultat)."
+        "oeuvre pour l'accompagner, mais reste tenu a une obligation de moyens (et non de résultat)."
     )
 
     # ---- ARTICLE 3 ----
@@ -208,7 +208,7 @@ def generate_contract_pdf(data, coach, pdf_path):
     # ---- ARTICLE 4 ----
     pdf._check_space(50)
     pdf._section_title("ARTICLE 4 -- PRIX ET PAIEMENT")
-    pdf._field("Prix de l'accompagnement :", f"{data.get('prix', '')} TTC")
+    pdf._field("Prix de l'accompagnement :", f"{data.get('prix', '')} euros TTC")
     pdf.ln(2)
     pdf._body_text(
         "Le paiement est dû en une seule fois a la signature du present contrat, "
