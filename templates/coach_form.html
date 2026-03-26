@@ -412,7 +412,8 @@
             <div class="sig-info"><span class="sig-label">Fait à</span> Neuilly-Plaisance</div>
             <div class="sig-info">
                 <span class="sig-label">Le</span>
-                <input type="date" name="coach_date_sig" class="inline-input medium" required>
+                <span id="display-coach-date-sig">___</span>
+                <input type="hidden" name="coach_date_sig" id="coach-date-sig-hidden">
             </div>
             <div class="sig-info"><span class="sig-label">Nom :</span> SENNOUN</div>
             <div class="sig-info"><span class="sig-label">Prénom :</span> ALAN</div>
@@ -455,6 +456,21 @@
                     display.textContent = input.value || '___';
                 }
             });
+        }
+    });
+
+    /* Sync contrat date to coach signature date */
+    var contratDateInput = document.querySelector('input[name="contrat_date"]');
+    var coachDateDisplay = document.getElementById('display-coach-date-sig');
+    var coachDateHidden = document.getElementById('coach-date-sig-hidden');
+    contratDateInput.addEventListener('input', function() {
+        if (contratDateInput.value) {
+            var d = new Date(contratDateInput.value);
+            coachDateDisplay.textContent = d.toLocaleDateString('fr-FR');
+            coachDateHidden.value = contratDateInput.value;
+        } else {
+            coachDateDisplay.textContent = '___';
+            coachDateHidden.value = '';
         }
     });
 
