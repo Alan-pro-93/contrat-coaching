@@ -397,6 +397,19 @@ def mes_contrats():
     return render_template("mes_contrats.html", contrats=contrats)
 
 
+@app.route("/supprimer", methods=["POST"])
+def supprimer():
+    if not coach_logged_in():
+        return redirect(url_for("index"))
+
+    ids = request.form.getlist("ids")
+    if ids:
+        for contrat_id in ids:
+            db_update("DELETE FROM contrats WHERE id = ?", (contrat_id,))
+
+    return redirect(url_for("mes_contrats"))
+
+
 @app.route("/logout")
 def logout():
     session.pop("coach_logged_in", None)

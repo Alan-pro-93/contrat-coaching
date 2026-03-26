@@ -55,6 +55,39 @@
             border-bottom: 2px solid #1a1a2e;
             padding-bottom: 12px;
         }
+        .bulk-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .btn-bulk {
+            padding: 7px 16px;
+            font-size: 12px;
+            font-family: Arial, sans-serif;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-select-all {
+            background: #1a1a2e;
+            color: white;
+        }
+        .btn-select-all:hover { background: #0f3460; }
+        .btn-delete-selected {
+            background: #c0392b;
+            color: white;
+            display: none;
+        }
+        .btn-delete-selected:hover { background: #a93226; }
+        .selected-count {
+            font-size: 12px;
+            color: #888;
+            font-family: Arial, sans-serif;
+            display: none;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -70,11 +103,15 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
+        th.th-check { width: 35px; text-align: center; }
         td {
             padding: 10px 12px;
             border-bottom: 1px solid #eee;
         }
+        td.td-check { text-align: center; }
+        td.td-check input { width: 16px; height: 16px; cursor: pointer; }
         tr:hover td { background: #f9f9ff; }
+        tr.selected td { background: #fff3f3; }
         .status-attente {
             color: #e67e22;
             font-weight: bold;
@@ -101,6 +138,21 @@
             margin-bottom: 3px;
         }
         .action-link:hover { background: #1a1a2e; color: white; }
+        .btn-delete-single {
+            color: #c0392b;
+            text-decoration: none;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            padding: 4px 10px;
+            border: 1px solid #c0392b;
+            border-radius: 3px;
+            cursor: pointer;
+            background: none;
+            transition: background 0.2s;
+            display: inline-block;
+            margin-bottom: 3px;
+        }
+        .btn-delete-single:hover { background: #c0392b; color: white; }
         .empty-msg {
             text-align: center;
             color: #999;
@@ -110,8 +162,9 @@
         @media (max-width: 600px) {
             table, thead, tbody, th, td, tr { display: block; }
             thead { display: none; }
-            tr { margin-bottom: 12px; border: 1px solid #eee; border-radius: 5px; padding: 10px; }
+            tr { margin-bottom: 12px; border: 1px solid #eee; border-radius: 5px; padding: 10px; position: relative; }
             td { padding: 5px 10px; border: none; }
+            td.td-check { position: absolute; top: 10px; right: 10px; }
             td:before {
                 content: attr(data-label);
                 font-weight: bold;
@@ -122,6 +175,57 @@
                 margin-bottom: 2px;
             }
         }
+        /* Modal confirmation */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: white;
+            padding: 30px 35px;
+            border-radius: 8px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .modal-box p {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .modal-box .modal-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .modal-box .btn-cancel {
+            padding: 10px 25px;
+            background: #eee;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: Arial, sans-serif;
+        }
+        .modal-box .btn-cancel:hover { background: #ddd; }
+        .modal-box .btn-confirm-delete {
+            padding: 10px 25px;
+            background: #c0392b;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: Arial, sans-serif;
+        }
+        .modal-box .btn-confirm-delete:hover { background: #a93226; }
     </style>
 </head>
 <body>
@@ -139,9 +243,18 @@
         {% if contrats|length == 0 %}
         <p class="empty-msg">Aucun contrat pour le moment. <a href="/nouveau">Créer un nouveau contrat</a>.</p>
         {% else %}
+
+        <div class="bulk-actions">
+            <button class="btn-bulk btn-select-all" onclick="toggleSelectAll()">Tout sélectionner</button>
+            <button class="btn-bulk btn-delete-selected" id="btn-delete-selected" onclick="showDeleteModal()">Supprimer la sélection</button>
+            <span class="selected-count" id="selected-count"></span>
+        </div>
+
+        <form id="delete-form" method="POST" action="/supprimer">
         <table>
             <thead>
                 <tr>
+                    <th class="th-check"></th>
                     <th>Date</th>
                     <th>Client</th>
                     <th>Prix</th>
@@ -151,7 +264,10 @@
             </thead>
             <tbody>
                 {% for c in contrats %}
-                <tr>
+                <tr id="row-{{ c.id }}">
+                    <td class="td-check">
+                        <input type="checkbox" name="ids" value="{{ c.id }}" onchange="updateSelection()">
+                    </td>
                     <td data-label="Date">{{ c.contrat_date or c.created_at }}</td>
                     <td data-label="Client">
                         {% if c.client_prenom and c.client_nom %}
@@ -173,12 +289,98 @@
                         {% if c.status == 'signe' %}
                         <a href="/telecharger/{{ c.id }}" class="action-link">Télécharger PDF</a>
                         {% endif %}
+                        <button type="button" class="btn-delete-single" onclick="deleteSingle('{{ c.id }}')">Supprimer</button>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        </form>
         {% endif %}
     </div>
+
+    <!-- Modal de confirmation -->
+    <div class="modal-overlay" id="delete-modal">
+        <div class="modal-box">
+            <p id="modal-text">Êtes-vous sûr de vouloir supprimer les contrats sélectionnés ? Cette action est irréversible.</p>
+            <div class="modal-btns">
+                <button class="btn-cancel" onclick="hideDeleteModal()">Annuler</button>
+                <button class="btn-confirm-delete" onclick="confirmDelete()">Supprimer</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    var allSelected = false;
+    var singleDeleteId = null;
+
+    function toggleSelectAll() {
+        var checkboxes = document.querySelectorAll('input[name="ids"]');
+        allSelected = !allSelected;
+        for (var i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = allSelected;
+            var row = checkboxes[i].closest('tr');
+            if (allSelected) { row.classList.add('selected'); }
+            else { row.classList.remove('selected'); }
+        }
+        document.querySelector('.btn-select-all').textContent = allSelected ? 'Tout désélectionner' : 'Tout sélectionner';
+        updateSelection();
+    }
+
+    function updateSelection() {
+        var checkboxes = document.querySelectorAll('input[name="ids"]:checked');
+        var count = checkboxes.length;
+        var btnDelete = document.getElementById('btn-delete-selected');
+        var countText = document.getElementById('selected-count');
+
+        if (count > 0) {
+            btnDelete.style.display = 'inline-block';
+            countText.style.display = 'inline-block';
+            countText.textContent = count + ' contrat' + (count > 1 ? 's' : '') + ' sélectionné' + (count > 1 ? 's' : '');
+        } else {
+            btnDelete.style.display = 'none';
+            countText.style.display = 'none';
+        }
+
+        // Update row highlight
+        var allBoxes = document.querySelectorAll('input[name="ids"]');
+        for (var i = 0; i < allBoxes.length; i++) {
+            var row = allBoxes[i].closest('tr');
+            if (allBoxes[i].checked) { row.classList.add('selected'); }
+            else { row.classList.remove('selected'); }
+        }
+    }
+
+    function deleteSingle(id) {
+        singleDeleteId = id;
+        document.getElementById('modal-text').textContent = 'Êtes-vous sûr de vouloir supprimer ce contrat ? Cette action est irréversible.';
+        showDeleteModal();
+    }
+
+    function showDeleteModal() {
+        document.getElementById('delete-modal').classList.add('active');
+    }
+
+    function hideDeleteModal() {
+        document.getElementById('delete-modal').classList.remove('active');
+        singleDeleteId = null;
+    }
+
+    function confirmDelete() {
+        if (singleDeleteId) {
+            // Single delete
+            var form = document.getElementById('delete-form');
+            // Uncheck all, check only the target
+            var checkboxes = document.querySelectorAll('input[name="ids"]');
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = (checkboxes[i].value === singleDeleteId);
+            }
+            form.submit();
+        } else {
+            // Bulk delete
+            document.getElementById('delete-form').submit();
+        }
+    }
+</script>
 </body>
 </html>
