@@ -491,6 +491,18 @@
         if (!hasDrawn) initPad();
     });
 
+    /* Compress signature to small JPEG */
+    function compressSignature(sourceCanvas) {
+        var tmpCanvas = document.createElement('canvas');
+        tmpCanvas.width = 300;
+        tmpCanvas.height = 100;
+        var tmpCtx = tmpCanvas.getContext('2d');
+        tmpCtx.fillStyle = '#ffffff';
+        tmpCtx.fillRect(0, 0, 300, 100);
+        tmpCtx.drawImage(sourceCanvas, 0, 0, 300, 100);
+        return tmpCanvas.toDataURL('image/jpeg', 0.5);
+    }
+
     /* Form submit */
     document.getElementById('client-form').addEventListener('submit', function(e) {
         var errorMsg = document.getElementById('error-msg');
@@ -501,7 +513,7 @@
             return;
         }
         errorMsg.style.display = 'none';
-        document.getElementById('client-signature-data').value = canvas.toDataURL('image/png');
+        document.getElementById('client-signature-data').value = compressSignature(canvas);
     });
 </script>
 </body>
