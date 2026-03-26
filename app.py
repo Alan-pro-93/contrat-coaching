@@ -46,6 +46,11 @@ if use_postgres:
         url = DATABASE_URL
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql://", 1)
+        # Remove pgbouncer param if present (not supported by psycopg2)
+        if "?pgbouncer=true" in url:
+            url = url.replace("?pgbouncer=true", "")
+        elif "&pgbouncer=true" in url:
+            url = url.replace("&pgbouncer=true", "")
         conn = psycopg2.connect(url)
         return conn
 
