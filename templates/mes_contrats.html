@@ -226,6 +226,29 @@
             font-family: Arial, sans-serif;
         }
         .modal-box .btn-confirm-delete:hover { background: #a93226; }
+        .search-bar {
+            margin-bottom: 20px;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+        }
+        .search-bar input:focus {
+            outline: none;
+            border-color: #1a1a2e;
+        }
+        .no-results {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-size: 13px;
+            font-family: Arial, sans-serif;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -243,6 +266,10 @@
         {% if contrats|length == 0 %}
         <p class="empty-msg">Aucun contrat pour le moment. <a href="/nouveau">Créer un nouveau contrat</a>.</p>
         {% else %}
+
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Rechercher par nom ou prénom..." oninput="filterContrats()">
+        </div>
 
         <div class="bulk-actions">
             <button class="btn-bulk btn-select-all" onclick="toggleSelectAll()">Tout sélectionner</button>
@@ -296,6 +323,7 @@
             </tbody>
         </table>
         </form>
+        <p class="no-results" id="no-results">Aucun contrat trouvé.</p>
         {% endif %}
     </div>
 
@@ -364,6 +392,26 @@
     function hideDeleteModal() {
         document.getElementById('delete-modal').classList.remove('active');
         singleDeleteId = null;
+    }
+
+    function filterContrats() {
+        var query = document.getElementById('search-input').value.toLowerCase().trim();
+        var rows = document.querySelectorAll('tbody tr');
+        var visible = 0;
+        for (var i = 0; i < rows.length; i++) {
+            var clientCell = rows[i].querySelector('td[data-label="Client"]');
+            var text = clientCell ? clientCell.textContent.toLowerCase() : '';
+            if (query === '' || text.indexOf(query) !== -1) {
+                rows[i].style.display = '';
+                visible++;
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+        var noResults = document.getElementById('no-results');
+        if (noResults) {
+            noResults.style.display = (visible === 0 && query !== '') ? 'block' : 'none';
+        }
     }
 
     function confirmDelete() {
