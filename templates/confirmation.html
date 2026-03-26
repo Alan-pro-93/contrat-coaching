@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contrat Signe</title>
+    <title>Contrat Signé</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -61,13 +61,13 @@
     <div class="card">
         <div class="check-icon">&#10003;</div>
         {% if already_signed %}
-        <h2>CONTRAT DEJA SIGNE</h2>
-        <p>Ce contrat a deja ete signe. Vous pouvez telecharger le PDF ci-dessous.</p>
+        <h2>CONTRAT DÉJÀ SIGNÉ</h2>
+        <p>Ce contrat a déjà été signé. Vous pouvez télécharger le PDF ci-dessous.</p>
         {% else %}
-        <h2>CONTRAT SIGNE AVEC SUCCES</h2>
-        <p>Votre contrat a ete signe avec succes. Vous pouvez telecharger le PDF ci-dessous.</p>
+        <h2>CONTRAT SIGNÉ AVEC SUCCÈS</h2>
+        <p>Votre contrat a été signé avec succès. Vous pouvez télécharger le PDF ci-dessous.</p>
         {% endif %}
-        <a href="/telecharger/{{ contrat_id }}" class="btn">TELECHARGER LE PDF</a>
+        <a href="/telecharger/{{ contrat_id }}" class="btn">TÉLÉCHARGER LE PDF</a>
     </div>
 </body>
 </html>
