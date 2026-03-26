@@ -2,3 +2,4 @@ flask
 fpdf2
 python-dotenv
 gunicorn
+psycopg2-binary
