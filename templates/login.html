@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acces Coach - Contrat d'Accompagnement</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .password-box {
+            background: white;
+            padding: 40px 45px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+        .password-box h2 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: #1a1a2e;
+            letter-spacing: 1px;
+        }
+        .password-box p {
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 25px;
+        }
+        .password-box input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 15px;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+        .password-box input:focus {
+            outline: none;
+            border-color: #1a1a2e;
+        }
+        .btn-access {
+            margin-top: 15px;
+            width: 100%;
+            padding: 12px;
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 15px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            letter-spacing: 1px;
+            transition: background 0.2s;
+        }
+        .btn-access:hover { background: #0f3460; }
+        .password-error {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 10px;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="password-box">
+        <h2>ACCES SECURISE</h2>
+        <p>Veuillez entrer le mot de passe pour acceder a l'espace coach.</p>
+        <form method="POST" action="/login">
+            <input type="password" name="password" placeholder="Mot de passe" autofocus>
+            <button type="submit" class="btn-access">ACCEDER</button>
+        </form>
+        {% if error %}
+        <p class="password-error">{{ error }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>

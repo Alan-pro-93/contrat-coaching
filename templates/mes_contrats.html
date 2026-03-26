@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Contrats</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #f5f5f5;
+            color: #1a1a1a;
+            line-height: 1.75;
+        }
+        .top-bar {
+            background: #1a1a2e;
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .top-bar a {
+            color: white;
+            text-decoration: none;
+            font-size: 13px;
+            font-family: Arial, sans-serif;
+            padding: 6px 14px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .top-bar a:hover { background: rgba(255,255,255,0.1); }
+        .top-bar span {
+            color: white;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            letter-spacing: 1px;
+        }
+        .page-wrapper {
+            max-width: 900px;
+            margin: 30px auto;
+            background: white;
+            padding: 40px 50px;
+            box-shadow: 0 2px 25px rgba(0,0,0,0.08);
+            border-radius: 2px;
+        }
+        @media (max-width: 950px) {
+            .page-wrapper { margin: 0; padding: 20px 15px; box-shadow: none; }
+        }
+        h1 {
+            font-size: 20px;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+            color: #1a1a2e;
+            border-bottom: 2px solid #1a1a2e;
+            padding-bottom: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th {
+            background: #1a1a2e;
+            color: white;
+            padding: 10px 12px;
+            text-align: left;
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:hover td { background: #f9f9ff; }
+        .status-attente {
+            color: #e67e22;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+        }
+        .status-signe {
+            color: #27ae60;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+        }
+        .action-link {
+            color: #1a1a2e;
+            text-decoration: none;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            padding: 4px 10px;
+            border: 1px solid #1a1a2e;
+            border-radius: 3px;
+            margin-right: 5px;
+            transition: background 0.2s;
+            display: inline-block;
+            margin-bottom: 3px;
+        }
+        .action-link:hover { background: #1a1a2e; color: white; }
+        .empty-msg {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+            font-size: 14px;
+        }
+        @media (max-width: 600px) {
+            table, thead, tbody, th, td, tr { display: block; }
+            thead { display: none; }
+            tr { margin-bottom: 12px; border: 1px solid #eee; border-radius: 5px; padding: 10px; }
+            td { padding: 5px 10px; border: none; }
+            td:before {
+                content: attr(data-label);
+                font-weight: bold;
+                font-family: Arial, sans-serif;
+                font-size: 11px;
+                color: #888;
+                display: block;
+                margin-bottom: 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <span>MES CONTRATS</span>
+        <div>
+            <a href="/nouveau">Nouveau contrat</a>
+            <a href="/logout">Deconnexion</a>
+        </div>
+    </div>
+
+    <div class="page-wrapper">
+        <h1>LISTE DES CONTRATS</h1>
+
+        {% if contrats|length == 0 %}
+        <p class="empty-msg">Aucun contrat pour le moment. <a href="/nouveau">Creer un nouveau contrat</a>.</p>
+        {% else %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Client</th>
+                    <th>Prix</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in contrats %}
+                <tr>
+                    <td data-label="Date">{{ c.contrat_date or c.created_at }}</td>
+                    <td data-label="Client">
+                        {% if c.client_prenom and c.client_nom %}
+                            {{ c.client_prenom }} {{ c.client_nom }}
+                        {% else %}
+                            <em style="color:#999;">En attente</em>
+                        {% endif %}
+                    </td>
+                    <td data-label="Prix">{{ c.prix }} TTC</td>
+                    <td data-label="Statut">
+                        {% if c.status == 'signe' %}
+                            <span class="status-signe">SIGNE</span>
+                        {% else %}
+                            <span class="status-attente">EN ATTENTE</span>
+                        {% endif %}
+                    </td>
+                    <td data-label="Actions">
+                        <a href="/lien/{{ c.id }}" class="action-link">Voir lien</a>
+                        {% if c.status == 'signe' %}
+                        <a href="/telecharger/{{ c.id }}" class="action-link">Telecharger PDF</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</body>
+</html>

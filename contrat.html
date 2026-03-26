@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contrat d'Accompagnement</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #f5f5f5;
+            color: #1a1a1a;
+            line-height: 1.75;
+        }
+
+        /* ===== ECRAN MOT DE PASSE ===== */
+        #password-screen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .password-box {
+            background: white;
+            padding: 40px 45px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .password-box h2 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: #1a1a2e;
+            letter-spacing: 1px;
+        }
+
+        .password-box p {
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 25px;
+        }
+
+        .password-box input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 15px;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .password-box input:focus {
+            outline: none;
+            border-color: #1a1a2e;
+        }
+
+        .password-box .btn-access {
+            margin-top: 15px;
+            width: 100%;
+            padding: 12px;
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 15px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            letter-spacing: 1px;
+            transition: background 0.2s;
+        }
+
+        .password-box .btn-access:hover { background: #0f3460; }
+
+        .password-error {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 10px;
+            font-family: Arial, sans-serif;
+            display: none;
+        }
+
+        /* ===== CONTRAT ===== */
+        #contrat-page { display: none; }
+
+        .page-wrapper {
+            max-width: 800px;
+            margin: 30px auto;
+            background: white;
+            padding: 55px 60px;
+            box-shadow: 0 2px 25px rgba(0,0,0,0.08);
+            border-radius: 2px;
+        }
+
+        @media (max-width: 850px) {
+            .page-wrapper { margin: 0; padding: 25px 18px; box-shadow: none; }
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 22px;
+            letter-spacing: 3px;
+            margin-bottom: 35px;
+            padding-bottom: 18px;
+            border-bottom: 2px solid #1a1a2e;
+            color: #1a1a2e;
+        }
+
+        .separator {
+            border: none;
+            border-top: 1px solid #d0d0d0;
+            margin: 28px 0;
+        }
+
+        h2 {
+            font-size: 15px;
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #1a1a2e;
+        }
+
+        h3 {
+            font-size: 13.5px;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        p, li { font-size: 13px; margin-bottom: 8px; }
+        ul, ol { padding-left: 25px; }
+        li { margin-bottom: 5px; }
+        strong { color: #1a1a1a; }
+
+        /* Date en haut */
+        .date-header {
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        /* Infos parties */
+        .parties-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 15px 0;
+        }
+
+        @media (max-width: 600px) {
+            .parties-grid { grid-template-columns: 1fr; gap: 15px; }
+        }
+
+        .partie-block {
+            padding: 18px 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            background: #fcfcfc;
+        }
+
+        .partie-block h3 {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            color: #1a1a2e;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-line {
+            font-size: 13px;
+            margin-bottom: 6px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .info-line .label {
+            font-weight: bold;
+            min-width: 70px;
+            color: #555;
+            font-size: 12px;
+        }
+
+        .info-line .value {
+            color: #1a1a1a;
+        }
+
+        /* Champs client */
+        .field-group {
+            margin-bottom: 8px;
+        }
+
+        .field-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #888;
+            margin-bottom: 3px;
+            font-family: Arial, sans-serif;
+        }
+
+        .field-group input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 13px;
+            font-family: 'Georgia', serif;
+            background: white;
+        }
+
+        .field-group input:focus {
+            outline: none;
+            border-color: #1a1a2e;
+            box-shadow: 0 0 0 2px rgba(26,26,46,0.08);
+        }
+
+        /* Champs inline */
+        .inline-input {
+            border: none;
+            border-bottom: 1px solid #999;
+            font-size: 13px;
+            font-family: 'Georgia', serif;
+            padding: 2px 5px;
+            background: transparent;
+        }
+
+        .inline-input:focus {
+            outline: none;
+            border-bottom-color: #1a1a2e;
+        }
+
+        .inline-input.small { width: 55px; text-align: center; }
+        .inline-input.medium { width: 130px; }
+        .inline-input.prix { width: 90px; text-align: center; }
+
+        /* Signatures */
+        .signatures-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .signatures-grid { grid-template-columns: 1fr; }
+        }
+
+        .signature-block { text-align: center; }
+        .signature-block h3 { margin-bottom: 10px; color: #1a1a2e; }
+
+        .sig-info {
+            font-size: 13px;
+            margin: 4px 0;
+            text-align: left;
+        }
+
+        .sig-info .sig-label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .signature-container {
+            position: relative;
+            margin: 10px auto;
+        }
+
+        canvas.signature-pad {
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+            cursor: crosshair;
+            width: 100%;
+            height: 150px;
+            touch-action: none;
+            background: #fefefe;
+        }
+
+        .signature-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #bbb;
+            font-size: 13px;
+            pointer-events: none;
+            font-family: Arial, sans-serif;
+        }
+
+        .btn-clear {
+            margin-top: 5px;
+            padding: 5px 15px;
+            font-size: 11px;
+            background: #c0392b;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+        }
+
+        .btn-clear:hover { background: #a93226; }
+
+        /* Bouton telecharger */
+        .download-section {
+            text-align: center;
+            margin: 45px 0 25px;
+        }
+
+        .btn-download {
+            display: inline-block;
+            padding: 16px 50px;
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: background 0.2s;
+        }
+
+        .btn-download:hover { background: #0f3460; }
+        .btn-download:disabled { background: #95a5a6; cursor: not-allowed; }
+
+        .download-note {
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+            font-family: Arial, sans-serif;
+        }
+
+        .error-msg {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 10px;
+            font-family: Arial, sans-serif;
+            display: none;
+        }
+
+        .inline-field-pdf {
+            font-weight: bold;
+            border-bottom: 1px solid #333;
+            padding: 1px 4px;
+            min-width: 50px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== ECRAN MOT DE PASSE ===== -->
+<div id="password-screen">
+    <div class="password-box">
+        <h2>ACCES SECURISE</h2>
+        <p>Veuillez entrer le mot de passe pour acceder au contrat.</p>
+        <input type="password" id="password-input" placeholder="Mot de passe" onkeydown="if(event.key==='Enter') checkPassword()">
+        <button class="btn-access" onclick="checkPassword()">ACCEDER</button>
+        <p class="password-error" id="password-error">Mot de passe incorrect.</p>
+    </div>
+</div>
+
+<!-- ===== CONTRAT ===== -->
+<div id="contrat-page">
+    <div class="page-wrapper" id="contrat-content">
+
+        <h1>CONTRAT D'ACCOMPAGNEMENT PERSONNALISE</h1>
+
+        <div class="date-header">
+            <strong>Date :</strong> <input type="date" class="inline-input medium" id="contrat-date">
+        </div>
+
+        <hr class="separator">
+
+        <h2>Les Parties</h2>
+
+        <div class="parties-grid">
+            <div class="partie-block">
+                <h3>Le Coach</h3>
+                <div class="info-line"><span class="label">Prenom :</span><span class="value">ALAN</span></div>
+                <div class="info-line"><span class="label">Nom :</span><span class="value">SENNOUN</span></div>
+                <div class="info-line"><span class="label">Raison sociale :</span><span class="value">E-PartnerPro</span></div>
+                <div class="info-line"><span class="label">SIRET :</span><span class="value">98124052600013</span></div>
+                <div class="info-line"><span class="label">Adresse :</span><span class="value">159 Avenue du Marechal Foch - Neuilly-Plaisance (93360)</span></div>
+                <div class="info-line"><span class="label">Email :</span><span class="value">contact@protocolemns.com</span></div>
+                <div class="info-line"><span class="label">Telephone :</span><span class="value">07 83 78 92 39</span></div>
+            </div>
+
+            <div class="partie-block">
+                <h3>Le Client</h3>
+                <div class="field-group">
+                    <label>Prenom</label>
+                    <input type="text" id="client-prenom" placeholder="Votre prenom">
+                </div>
+                <div class="field-group">
+                    <label>Nom</label>
+                    <input type="text" id="client-nom" placeholder="Votre nom">
+                </div>
+                <div class="field-group">
+                    <label>Adresse</label>
+                    <input type="text" id="client-adresse" placeholder="Votre adresse">
+                </div>
+                <div class="field-group">
+                    <label>Email</label>
+                    <input type="email" id="client-email" placeholder="Votre email">
+                </div>
+                <div class="field-group">
+                    <label>Telephone</label>
+                    <input type="tel" id="client-tel" placeholder="Votre telephone">
+                </div>
+            </div>
+        </div>
+
+        <hr class="separator">
+
+        <h2>Preambule</h2>
+        <p>Le Coach propose un accompagnement personnalise en nutrition et activite physique pour aider le Client a atteindre son objectif de transformation physique.</p>
+        <p>Le Client confirme avoir echange avec le Coach lors d'un appel prealable, au cours duquel le programme, l'objectif et les conditions ont ete presentes clairement. Il s'engage en toute connaissance de cause.</p>
+
+        <hr class="separator">
+
+        <h2>Article 1 — Le Programme</h2>
+        <p>Le Coach fournit au Client un accompagnement sur mesure comprenant :</p>
+        <ul>
+            <li>Un suivi nutritionnel personnalise</li>
+            <li>Des recommandations d'activite physique</li>
+            <li>Un accompagnement et un suivi regulier de la progression</li>
+        </ul>
+        <p>Ce programme n'est pas un acte medical. Le Client est invite a consulter son medecin avant de commencer.</p>
+
+        <hr class="separator">
+
+        <h2>Article 2 — Objectif</h2>
+        <p>L'objectif du Programme est une perte de poids personnalisee, definie comme suit :</p>
+        <p><strong>Poids actuel :</strong> <input type="number" class="inline-input small" id="poids-actuel" placeholder="kg"> kg</p>
+        <p><strong>Poids vise : entre</strong> <input type="number" class="inline-input small" id="poids-min" placeholder="kg"> kg <strong>et</strong> <input type="number" class="inline-input small" id="poids-max" placeholder="kg"> kg, soit une perte de <input type="number" class="inline-input small" id="perte-min" placeholder=""> a <input type="number" class="inline-input small" id="perte-max" placeholder=""> kg d'ici les 90 prochains jours.</p>
+        <p>L'atteinte de cet objectif depend de l'implication du Client. Le Coach met tout en oeuvre pour l'accompagner, mais reste tenu a une <strong>obligation de moyens</strong> (et non de resultat).</p>
+
+        <hr class="separator">
+
+        <h2>Article 3 — Duree</h2>
+
+        <h3>3.1 — Periode initiale</h3>
+        <p>Le Programme dure <strong>90 jours</strong> a compter du <input type="date" class="inline-input medium" id="date-debut"> (ou, a defaut, a compter de la reception du paiement).</p>
+
+        <h3>3.2 — Prolongation gratuite</h3>
+        <p>Si l'objectif n'est pas atteint a la fin des 90 jours, le Coach s'engage a <strong>poursuivre l'accompagnement gratuitement</strong>, a condition que le Client ait :</p>
+        <p>a) Suivi serieusement et regulierement les recommandations du Coach (alimentation, activite physique, rendez-vous de suivi) ;</p>
+        <p>b) Participe activement aux echanges prevus dans le Programme ;</p>
+        <p>c) Ne pas avoir interrompu le Programme de sa propre initiative pendant plus de 7 jours consecutifs sans raison valable ;</p>
+        <p>Le Coach apprecie le respect de ces conditions de bonne foi.</p>
+        <p>Le Coach se reserve le droit de poursuivre l'accompagnement meme dans le cas ou aucune de ces conditions n'a ete respectee par le Client, mais ceci releve de sa seule volonte et ne constitue en aucun cas une obligation legale.</p>
+        <p>Cette prolongation est limitee a <strong>90 jours supplementaires</strong> maximum. Au-dela, l'accompagnement prend fin automatiquement.</p>
+        <p>Cet engagement de prolongation est un <strong>geste commercial volontaire</strong> du Coach. Il ne constitue pas une garantie de resultat.</p>
+
+        <hr class="separator">
+
+        <h2>Article 4 — Prix et Paiement</h2>
+        <p>Le prix de l'accompagnement est de : <strong><input type="text" class="inline-input prix" id="prix" placeholder="Montant"> TTC</strong>.</p>
+        <p>Le paiement est du <strong>en une seule fois a la signature du present contrat</strong>, par virement bancaire, carte bancaire ou tout autre moyen convenu.</p>
+        <p><strong>Les sommes versees ne sont pas remboursables.</strong> Le Coach engage des moyens, du temps et des ressources des le demarrage du Programme, et la prestation est entierement personnalisee.</p>
+
+        <hr class="separator">
+
+        <h2>Article 5 — Droit de Retractation</h2>
+        <p>Le present contrat etant conclu a distance, le Client dispose en principe d'un droit de retractation de 14 jours (articles L. 221-18 et suivants du Code de la consommation).</p>
+        <p>Cependant, conformement a l'article L. 221-28 du Code de la consommation, <strong>le Programme debutant immediatement des la signature du present contrat</strong>, le Client reconnait et accepte expressement que cette execution immediate entraine la renonciation a son droit de retractation.</p>
+        <p>En signant le present contrat, le Client confirme avoir ete informe de cette renonciation et l'accepter sans reserve.</p>
+
+        <hr class="separator">
+
+        <h2>Article 6 — Engagements du Client</h2>
+        <p>Le Client s'engage a :</p>
+        <p>a) Fournir des informations exactes sur son etat de sante, ses antecedents medicaux et son mode de vie ;</p>
+        <p>b) Signaler toute contre-indication medicale, allergie ou traitement en cours ;</p>
+        <p>c) Suivre les recommandations du Coach avec serieux et regularite ;</p>
+        <p>d) Participer activement aux echanges et suivis prevus ;</p>
+        <p>e) Prevenir le Coach en cas de difficulte ;</p>
+        <p>f) Consulter son medecin avant de demarrer et en cas de symptome inhabituel.</p>
+        <p>Les resultats dependent en grande partie de <strong>l'implication, la rigueur et la constance</strong> du Client.</p>
+
+        <hr class="separator">
+
+        <h2>Article 7 — Engagements du Coach</h2>
+        <p>Le Coach s'engage a :</p>
+        <p>a) Fournir un accompagnement personnalise et adapte ;</p>
+        <p>b) Etre disponible et reactif ;</p>
+        <p>c) Adapter le Programme selon l'evolution du Client ;</p>
+        <p>d) Signaler toute difficulte pouvant affecter le Programme.</p>
+
+        <hr class="separator">
+
+        <h2>Article 8 — Responsabilite</h2>
+        <p>Le Coach ne peut etre tenu responsable :</p>
+        <p>a) Des resultats obtenus, le Programme reposant sur une obligation de moyens ;</p>
+        <p>b) De tout dommage lie au non-respect des recommandations par le Client ;</p>
+        <p>c) De tout probleme de sante non signale par le Client ;</p>
+        <p>d) De tout dommage indirect, y compris prejudice moral.</p>
+        <p>La responsabilite du Coach est en tout etat de cause <strong>plafonnee au montant total percu</strong> pour la prestation.</p>
+        <p>Le Client est seul responsable de l'exactitude de ses informations, de ses decisions et de la consultation prealable de son medecin.</p>
+        <p><strong>Le Programme ne remplace pas un suivi medical.</strong> Le Client reconnait en avoir ete informe.</p>
+
+        <hr class="separator">
+
+        <h2>Article 9 — Resiliation</h2>
+
+        <h3>Par le Client</h3>
+        <p>Le Client peut resilier a tout moment par ecrit (email ou courrier). <strong>Aucun remboursement ne sera du</strong> en cas de resiliation anticipee, les sommes restant acquises au Coach.</p>
+
+        <h3>Par le Coach</h3>
+        <p>Le Coach peut resilier le contrat en cas de :</p>
+        <p>a) Comportement irrespectueux ou menacant du Client ;</p>
+        <p>b) Informations volontairement fausses fournies par le Client.</p>
+        <p>Ces cas constituent des manquements graves du Client a ses obligations contractuelles. En cas de resiliation par le Coach pour l'un de ces motifs, aucun remboursement ne sera du.</p>
+
+        <hr class="separator">
+
+        <h2>Article 10 — Propriete Intellectuelle</h2>
+        <p>Tous les contenus fournis par le Coach (plans, programmes, supports, videos) restent sa <strong>propriete exclusive</strong>. Le Client a un droit d'usage personnel uniquement, pendant la duree du Programme. Toute reproduction ou partage est interdit.</p>
+
+        <hr class="separator">
+
+        <h2>Article 11 — Dispositions Finales</h2>
+        <p>Le present contrat est soumis au <strong>droit francais</strong>.</p>
+        <p>Le contrat constitue l'accord complet entre les parties. Toute modification necessite un accord ecrit des deux parties.</p>
+        <p>Si une clause est declaree invalide, les autres restent pleinement applicables.</p>
+
+        <hr class="separator">
+
+        <h2>Signatures</h2>
+        <p>Lu et approuve. En signant ci-dessous, le Client confirme avoir pris connaissance de l'ensemble du present contrat, en accepter toutes les conditions, et renoncer expressement a son droit de retractation conformement a l'article 5.</p>
+
+        <div class="signatures-grid">
+            <!-- COACH -->
+            <div class="signature-block">
+                <h3>Le Coach</h3>
+                <div class="sig-info"><span class="sig-label">Fait a</span> Neuilly-Plaisance</div>
+                <div class="sig-info"><span class="sig-label">Le</span> <input type="date" class="inline-input medium" id="coach-date-sig"></div>
+                <div class="sig-info"><span class="sig-label">Nom :</span> SENNOUN</div>
+                <div class="sig-info"><span class="sig-label">Prenom :</span> ALAN</div>
+                <div class="sig-info" style="margin-top:5px;"><span class="sig-label">Signature :</span></div>
+                <div class="signature-container">
+                    <canvas class="signature-pad" id="sig-coach"></canvas>
+                    <div class="signature-placeholder" id="placeholder-coach">Signez ici</div>
+                </div>
+                <button class="btn-clear no-print" onclick="clearSignature('coach')">Effacer</button>
+            </div>
+
+            <!-- CLIENT -->
+            <div class="signature-block">
+                <h3>Le Client</h3>
+                <div class="sig-info"><span class="sig-label">Fait a</span> <input type="text" class="inline-input medium" id="client-lieu" placeholder="Ville"></div>
+                <div class="sig-info"><span class="sig-label">Le</span> <input type="date" class="inline-input medium" id="client-date-sig"></div>
+                <div class="sig-info"><span class="sig-label">Nom :</span> <input type="text" class="inline-input medium" id="client-nom-sig" placeholder="Votre nom"></div>
+                <div class="sig-info"><span class="sig-label">Prenom :</span> <input type="text" class="inline-input medium" id="client-prenom-sig" placeholder="Votre prenom"></div>
+                <div class="sig-info" style="margin-top:5px;"><span class="sig-label">Signature :</span></div>
+                <div class="signature-container">
+                    <canvas class="signature-pad" id="sig-client"></canvas>
+                    <div class="signature-placeholder" id="placeholder-client">Signez ici</div>
+                </div>
+                <button class="btn-clear no-print" onclick="clearSignature('client')">Effacer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOUTON TELECHARGER -->
+    <div class="download-section no-print">
+        <button class="btn-download" id="btn-download" onclick="downloadPDF()">TELECHARGER LE CONTRAT EN PDF</button>
+        <p class="download-note">Le contrat sera telecharge au format PDF sur votre appareil.</p>
+        <p class="error-msg" id="error-msg"></p>
+    </div>
+</div>
+
+<script>
+    /* ===== MOT DE PASSE ===== */
+    function checkPassword() {
+        var input = document.getElementById('password-input');
+        var error = document.getElementById('password-error');
+        if (input.value === 'MNS-12345-MNS') {
+            document.getElementById('password-screen').style.display = 'none';
+            document.getElementById('contrat-page').style.display = 'block';
+            initSignaturePad('coach');
+            initSignaturePad('client');
+        } else {
+            error.style.display = 'block';
+            input.value = '';
+            input.focus();
+        }
+    }
+
+    /* ===== SIGNATURE PAD ===== */
+    var pads = {};
+
+    function initSignaturePad(id) {
+        var canvas = document.getElementById('sig-' + id);
+        var ctx = canvas.getContext('2d');
+        var drawing = false;
+        var hasDrawn = false;
+
+        var rect = canvas.getBoundingClientRect();
+        var ratio = window.devicePixelRatio || 1;
+        canvas.width = rect.width * ratio;
+        canvas.height = rect.height * ratio;
+        ctx.scale(ratio, ratio);
+        ctx.strokeStyle = '#1a1a1a';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        function getPos(e) {
+            var r = canvas.getBoundingClientRect();
+            var touch = e.touches ? e.touches[0] : e;
+            return { x: touch.clientX - r.left, y: touch.clientY - r.top };
+        }
+
+        function start(e) {
+            e.preventDefault();
+            drawing = true;
+            var pos = getPos(e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        function move(e) {
+            if (!drawing) return;
+            e.preventDefault();
+            var pos = getPos(e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            if (!hasDrawn) {
+                hasDrawn = true;
+                document.getElementById('placeholder-' + id).style.display = 'none';
+            }
+        }
+
+        function end(e) {
+            if (drawing) { e.preventDefault(); drawing = false; }
+        }
+
+        canvas.addEventListener('mousedown', start);
+        canvas.addEventListener('mousemove', move);
+        canvas.addEventListener('mouseup', end);
+        canvas.addEventListener('mouseleave', end);
+        canvas.addEventListener('touchstart', start, { passive: false });
+        canvas.addEventListener('touchmove', move, { passive: false });
+        canvas.addEventListener('touchend', end, { passive: false });
+
+        pads[id] = {
+            canvas: canvas,
+            ctx: ctx,
+            clear: function() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                hasDrawn = false;
+                document.getElementById('placeholder-' + id).style.display = 'block';
+            },
+            isEmpty: function() { return !hasDrawn; }
+        };
+    }
+
+    function clearSignature(id) {
+        pads[id].clear();
+    }
+
+    /* ===== GENERATION PDF ===== */
+    function downloadPDF() {
+        var btn = document.getElementById('btn-download');
+        var errorMsg = document.getElementById('error-msg');
+        errorMsg.style.display = 'none';
+
+        btn.textContent = 'Generation en cours...';
+        btn.disabled = true;
+
+        /* Cacher elements no-print */
+        var noPrintEls = document.querySelectorAll('.no-print');
+        for (var i = 0; i < noPrintEls.length; i++) {
+            noPrintEls[i].style.display = 'none';
+        }
+
+        /* Remplacer inputs par du texte pour le PDF */
+        var inputs = document.querySelectorAll('#contrat-content input');
+        var originals = [];
+
+        for (var j = 0; j < inputs.length; j++) {
+            var input = inputs[j];
+            var span = document.createElement('span');
+            span.className = 'inline-field-pdf';
+
+            if (input.type === 'date' && input.value) {
+                var d = new Date(input.value);
+                span.textContent = d.toLocaleDateString('fr-FR');
+            } else {
+                span.textContent = input.value || '_______________';
+            }
+
+            originals.push({ input: input, parent: input.parentNode, nextSibling: input.nextSibling });
+            input.parentNode.replaceChild(span, input);
+        }
+
+        /* Cacher placeholders */
+        var placeholders = document.querySelectorAll('.signature-placeholder');
+        for (var p = 0; p < placeholders.length; p++) {
+            placeholders[p].style.display = 'none';
+        }
+
+        var element = document.getElementById('contrat-content');
+
+        /* Nom client pour nom de fichier */
+        var clientNom = 'client';
+        for (var k = 0; k < originals.length; k++) {
+            if (originals[k].input.id === 'client-nom') {
+                clientNom = originals[k].input.value || 'client';
+                break;
+            }
+        }
+
+        var opt = {
+            margin: [10, 12, 10, 12],
+            filename: 'contrat-' + clientNom.toLowerCase().replace(/\s+/g, '-') + '.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, logging: false },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        html2pdf().set(opt).from(element).save().then(function() {
+            restore();
+        }).catch(function() {
+            restore();
+            errorMsg.textContent = 'Erreur lors de la generation. Veuillez reessayer.';
+            errorMsg.style.display = 'block';
+        });
+
+        function restore() {
+            for (var r = 0; r < originals.length; r++) {
+                var o = originals[r];
+                var replaced = o.nextSibling ? o.nextSibling.previousSibling : o.parent.lastChild;
+                if (replaced && replaced.className === 'inline-field-pdf') {
+                    o.parent.replaceChild(o.input, replaced);
+                }
+            }
+            for (var n = 0; n < noPrintEls.length; n++) {
+                noPrintEls[n].style.display = '';
+            }
+            btn.textContent = 'TELECHARGER LE CONTRAT EN PDF';
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>
