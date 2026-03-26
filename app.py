@@ -16,6 +16,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "contrat-coaching-secret-key-change-me")
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB max (signatures base64)
 
 DATABASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "contrats.db")
 PDF_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pdfs")

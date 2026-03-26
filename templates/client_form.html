@@ -380,15 +380,18 @@
             </div>
             <div class="sig-info">
                 <span class="sig-label">Le</span>
-                <input type="date" name="client_date_sig" class="inline-input medium" required>
+                <span>{{ contrat.contrat_date }}</span>
+                <input type="hidden" name="client_date_sig" value="{{ contrat.contrat_date }}">
             </div>
             <div class="sig-info">
                 <span class="sig-label">Nom :</span>
-                <input type="text" name="client_nom_sig" class="inline-input medium" placeholder="Votre nom" required>
+                <span id="display-client-nom-sig">___</span>
+                <input type="hidden" name="client_nom_sig" id="client-nom-sig-hidden">
             </div>
             <div class="sig-info">
                 <span class="sig-label">Prénom :</span>
-                <input type="text" name="client_prenom_sig" class="inline-input medium" placeholder="Votre prénom" required>
+                <span id="display-client-prenom-sig">___</span>
+                <input type="hidden" name="client_prenom_sig" id="client-prenom-sig-hidden">
             </div>
             <div class="sig-info" style="margin-top:5px;"><span class="sig-label">Signature :</span></div>
             <div class="signature-container">
@@ -408,6 +411,19 @@
 </form>
 
 <script>
+    /* Auto-sync nom/prénom from top to signature block */
+    var clientPrenomInput = document.querySelector('input[name="client_prenom"]');
+    var clientNomInput = document.querySelector('input[name="client_nom"]');
+
+    clientPrenomInput.addEventListener('input', function() {
+        document.getElementById('display-client-prenom-sig').textContent = this.value || '___';
+        document.getElementById('client-prenom-sig-hidden').value = this.value;
+    });
+    clientNomInput.addEventListener('input', function() {
+        document.getElementById('display-client-nom-sig').textContent = this.value || '___';
+        document.getElementById('client-nom-sig-hidden').value = this.value;
+    });
+
     /* Signature Pad */
     var canvas = document.getElementById('sig-client');
     var ctx = canvas.getContext('2d');

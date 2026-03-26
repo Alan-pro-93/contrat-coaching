@@ -257,14 +257,8 @@
                     <label>Poids visé max (kg)</label>
                     <input type="number" name="poids_max" step="0.1" placeholder="ex: 75" required>
                 </div>
-                <div class="field-group">
-                    <label>Perte min (kg)</label>
-                    <input type="number" name="perte_min" step="0.1" placeholder="ex: 10" required>
-                </div>
-                <div class="field-group">
-                    <label>Perte max (kg)</label>
-                    <input type="number" name="perte_max" step="0.1" placeholder="ex: 13" required>
-                </div>
+                <input type="hidden" name="perte_min">
+                <input type="hidden" name="perte_max">
                 <div class="field-group">
                     <label>Prix TTC</label>
                     <input type="text" name="prix" placeholder="ex: 499,00 euros" required>
@@ -458,6 +452,30 @@
             });
         }
     });
+
+    /* Auto-calculate perte from poids actuel - poids visé */
+    function calcPerte() {
+        var actuel = parseFloat(document.querySelector('input[name="poids_actuel"]').value);
+        var min = parseFloat(document.querySelector('input[name="poids_min"]').value);
+        var max = parseFloat(document.querySelector('input[name="poids_max"]').value);
+        var perteMinInput = document.querySelector('input[name="perte_min"]');
+        var perteMaxInput = document.querySelector('input[name="perte_max"]');
+        var displayPerteMin = document.getElementById('display-perte-min');
+        var displayPerteMax = document.getElementById('display-perte-max');
+        if (!isNaN(actuel) && !isNaN(max)) {
+            var pMin = Math.round((actuel - max) * 10) / 10;
+            perteMinInput.value = pMin > 0 ? pMin : '';
+            if (displayPerteMin) displayPerteMin.textContent = pMin > 0 ? pMin : '___';
+        }
+        if (!isNaN(actuel) && !isNaN(min)) {
+            var pMax = Math.round((actuel - min) * 10) / 10;
+            perteMaxInput.value = pMax > 0 ? pMax : '';
+            if (displayPerteMax) displayPerteMax.textContent = pMax > 0 ? pMax : '___';
+        }
+    }
+    document.querySelector('input[name="poids_actuel"]').addEventListener('input', calcPerte);
+    document.querySelector('input[name="poids_min"]').addEventListener('input', calcPerte);
+    document.querySelector('input[name="poids_max"]').addEventListener('input', calcPerte);
 
     /* Sync contrat date to coach signature date */
     var contratDateInput = document.querySelector('input[name="contrat_date"]');
