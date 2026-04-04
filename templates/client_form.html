@@ -241,6 +241,10 @@
                 <label>Téléphone</label>
                 <input type="tel" name="client_tel" placeholder="Votre téléphone" required>
             </div>
+            <div class="field-group">
+                <label>Ville</label>
+                <input type="text" id="client-ville-input" placeholder="Votre ville" required>
+            </div>
         </div>
     </div>
 
@@ -377,7 +381,8 @@
             <h3>Le Client</h3>
             <div class="sig-info">
                 <span class="sig-label">Fait à</span>
-                <input type="text" name="client_lieu" class="inline-input medium" placeholder="Ville" required>
+                <span id="display-client-ville-sig">___</span>
+                <input type="hidden" name="client_lieu" id="client-lieu-hidden">
             </div>
             <div class="sig-info">
                 <span class="sig-label">Le</span>
@@ -423,6 +428,13 @@
     clientNomInput.addEventListener('input', function() {
         document.getElementById('display-client-nom-sig').textContent = this.value || '___';
         document.getElementById('client-nom-sig-hidden').value = this.value;
+    });
+
+    /* Auto-sync ville from top to signature block */
+    var clientVilleInput = document.getElementById('client-ville-input');
+    clientVilleInput.addEventListener('input', function() {
+        document.getElementById('display-client-ville-sig').textContent = this.value || '___';
+        document.getElementById('client-lieu-hidden').value = this.value;
     });
 
     /* Signature Pad */
