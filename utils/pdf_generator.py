@@ -358,10 +358,10 @@ def generate_contract_pdf(data, coach, pdf_path):
 
     # Coach signature
     pdf._bold_text("Le Coach :")
-    pdf._field("Fait à :", coach.get("ville", ""))
+    pdf._field("Fait à :", "Neuilly-Plaisance")
     pdf._field("Le :", data.get("coach_date_sig", ""))
-    pdf._field("Nom :", coach.get("nom", ""))
-    pdf._field("Prénom :", coach.get("prenom", ""))
+    pdf._field("Nom :", coach["nom"])
+    pdf._field("Prénom :", coach["prenom"])
     pdf.ln(2)
     pdf.set_font("Helvetica", "B", 10)
     pdf.cell(0, 6, "Signature :", new_x="LMARGIN", new_y="NEXT")

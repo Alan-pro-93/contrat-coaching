@@ -234,48 +234,9 @@
     <div class="page-wrapper">
         <h1>CONTRAT D'ACCOMPAGNEMENT PERSONNALISÉ</h1>
 
-        <!-- Infos du Coach -->
-        <div class="coach-form-fields">
-            <h3>Informations du Coach</h3>
-            <div class="fields-grid">
-                <div class="field-group">
-                    <label>Prénom</label>
-                    <input type="text" name="coach_prenom" id="coach-prenom" placeholder="Prénom" value="{{ coach.prenom }}" required oninput="updateCoachDisplay()">
-                </div>
-                <div class="field-group">
-                    <label>Nom</label>
-                    <input type="text" name="coach_nom" id="coach-nom" placeholder="Nom" value="{{ coach.nom }}" required oninput="updateCoachDisplay()">
-                </div>
-                <div class="field-group">
-                    <label>Raison sociale</label>
-                    <input type="text" name="coach_raison" id="coach-raison" placeholder="Nom de l'entreprise" value="{{ coach.raison_sociale }}" required oninput="updateCoachDisplay()">
-                </div>
-                <div class="field-group">
-                    <label>SIRET</label>
-                    <input type="text" name="coach_siret" id="coach-siret" placeholder="N° SIRET" value="{{ coach.siret }}" required oninput="updateCoachDisplay()">
-                </div>
-                <div class="field-group">
-                    <label>Adresse</label>
-                    <input type="text" name="coach_adresse" id="coach-adresse" placeholder="Adresse complète" value="{{ coach.adresse }}" required oninput="updateCoachDisplay()">
-                </div>
-                <div class="field-group">
-                    <label>Email</label>
-                    <input type="email" name="coach_email" id="coach-email" placeholder="Email" value="{{ coach.email }}" required oninput="updateCoachDisplay()">
-                </div>
-                <div class="field-group">
-                    <label>Téléphone</label>
-                    <input type="tel" name="coach_tel" id="coach-tel" placeholder="Téléphone" value="{{ coach.telephone }}" required oninput="updateCoachDisplay()">
-                </div>
-                <div class="field-group">
-                    <label>Ville (signature)</label>
-                    <input type="text" name="coach_ville" id="coach-ville" placeholder="Ville" required oninput="updateCoachDisplay()">
-                </div>
-            </div>
-        </div>
-
         <!-- Infos du contrat -->
-        <div class="coach-form-fields" style="margin-top:15px;">
-            <h3>Informations du contrat</h3>
+        <div class="coach-form-fields">
+            <h3>Informations à remplir par le Coach</h3>
             <div class="fields-grid">
                 <div class="field-group">
                     <label>Date du contrat</label>
@@ -312,13 +273,13 @@
         <div class="parties-grid">
             <div class="partie-block">
                 <h3>Le Coach</h3>
-                <div class="info-line"><span class="label">Prénom :</span><span class="value" id="display-coach-prenom">___</span></div>
-                <div class="info-line"><span class="label">Nom :</span><span class="value" id="display-coach-nom">___</span></div>
-                <div class="info-line"><span class="label">Raison sociale :</span><span class="value" id="display-coach-raison">___</span></div>
-                <div class="info-line"><span class="label">SIRET :</span><span class="value" id="display-coach-siret">___</span></div>
-                <div class="info-line"><span class="label">Adresse :</span><span class="value" id="display-coach-adresse">___</span></div>
-                <div class="info-line"><span class="label">Email :</span><span class="value" id="display-coach-email">___</span></div>
-                <div class="info-line"><span class="label">Téléphone :</span><span class="value" id="display-coach-tel">___</span></div>
+                <div class="info-line"><span class="label">Prénom :</span><span class="value">{{ coach.prenom }}</span></div>
+                <div class="info-line"><span class="label">Nom :</span><span class="value">{{ coach.nom }}</span></div>
+                <div class="info-line"><span class="label">Raison sociale :</span><span class="value">{{ coach.raison_sociale }}</span></div>
+                <div class="info-line"><span class="label">SIRET :</span><span class="value">{{ coach.siret }}</span></div>
+                <div class="info-line"><span class="label">Adresse :</span><span class="value">{{ coach.adresse }}</span></div>
+                <div class="info-line"><span class="label">Email :</span><span class="value">{{ coach.email }}</span></div>
+                <div class="info-line"><span class="label">Téléphone :</span><span class="value">{{ coach.telephone }}</span></div>
             </div>
             <div class="partie-block">
                 <h3>Le Client</h3>
@@ -443,14 +404,14 @@
         <p>Lu et approuvé.</p>
 
         <div class="signature-block">
-            <div class="sig-info"><span class="sig-label">Fait à</span> <span id="display-coach-ville-sig">___</span></div>
+            <div class="sig-info"><span class="sig-label">Fait à</span> Neuilly-Plaisance</div>
             <div class="sig-info">
                 <span class="sig-label">Le</span>
                 <span id="display-coach-date-sig">___</span>
                 <input type="hidden" name="coach_date_sig" id="coach-date-sig-hidden">
             </div>
-            <div class="sig-info"><span class="sig-label">Nom :</span> <span id="display-coach-nom-sig">___</span></div>
-            <div class="sig-info"><span class="sig-label">Prénom :</span> <span id="display-coach-prenom-sig">___</span></div>
+            <div class="sig-info"><span class="sig-label">Nom :</span> SENNOUN</div>
+            <div class="sig-info"><span class="sig-label">Prénom :</span> ALAN</div>
             <div class="sig-info" style="margin-top:5px;"><span class="sig-label">Signature :</span></div>
             <div class="signature-container">
                 <canvas class="signature-pad" id="sig-coach"></canvas>
@@ -468,30 +429,6 @@
     </form>
 
 <script>
-    /* Auto-update coach display fields */
-    function updateCoachDisplay() {
-        var fields = {
-            'coach-prenom': ['display-coach-prenom', 'display-coach-prenom-sig'],
-            'coach-nom': ['display-coach-nom', 'display-coach-nom-sig'],
-            'coach-raison': ['display-coach-raison'],
-            'coach-siret': ['display-coach-siret'],
-            'coach-adresse': ['display-coach-adresse'],
-            'coach-email': ['display-coach-email'],
-            'coach-tel': ['display-coach-tel'],
-            'coach-ville': ['display-coach-ville-sig']
-        };
-        for (var id in fields) {
-            var input = document.getElementById(id);
-            var targets = fields[id];
-            for (var i = 0; i < targets.length; i++) {
-                var el = document.getElementById(targets[i]);
-                if (el && input) el.textContent = input.value || '___';
-            }
-        }
-    }
-    // Init au chargement
-    updateCoachDisplay();
-
     /* Live preview of inline values */
     var fieldMap = {
         'poids_actuel': 'display-poids-actuel',
