@@ -74,6 +74,14 @@ if use_postgres:
                 prix TEXT,
                 coach_signature TEXT,
                 coach_date_sig TEXT,
+                coach_prenom TEXT,
+                coach_nom TEXT,
+                coach_raison_sociale TEXT,
+                coach_siret TEXT,
+                coach_adresse TEXT,
+                coach_email TEXT,
+                coach_telephone TEXT,
+                coach_ville TEXT,
                 client_prenom TEXT,
                 client_nom TEXT,
                 client_adresse TEXT,
@@ -90,6 +98,23 @@ if use_postgres:
         conn.commit()
         cur.close()
         conn.close()
+
+        # Add coach columns if they don't exist (migration for existing tables)
+        try:
+            conn = get_db()
+            cur = conn.cursor()
+            for col in ['coach_prenom', 'coach_nom', 'coach_raison_sociale', 'coach_siret', 'coach_adresse', 'coach_email', 'coach_telephone', 'coach_ville']:
+                try:
+                    cur.execute(f"ALTER TABLE contrats ADD COLUMN {col} TEXT")
+                except Exception:
+                    conn.rollback()
+                    conn = get_db()
+                    cur = conn.cursor()
+            conn.commit()
+            cur.close()
+            conn.close()
+        except Exception:
+            pass
 
     def db_execute(query, params=None):
         conn = get_db()
@@ -165,6 +190,14 @@ else:
                 prix TEXT,
                 coach_signature TEXT,
                 coach_date_sig TEXT,
+                coach_prenom TEXT,
+                coach_nom TEXT,
+                coach_raison_sociale TEXT,
+                coach_siret TEXT,
+                coach_adresse TEXT,
+                coach_email TEXT,
+                coach_telephone TEXT,
+                coach_ville TEXT,
                 client_prenom TEXT,
                 client_nom TEXT,
                 client_adresse TEXT,
@@ -180,6 +213,19 @@ else:
         """)
         conn.commit()
         conn.close()
+
+        # Add coach columns if they don't exist (migration for existing tables)
+        try:
+            conn = get_db()
+            for col in ['coach_prenom', 'coach_nom', 'coach_raison_sociale', 'coach_siret', 'coach_adresse', 'coach_email', 'coach_telephone', 'coach_ville']:
+                try:
+                    conn.execute(f"ALTER TABLE contrats ADD COLUMN {col} TEXT")
+                except Exception:
+                    pass
+            conn.commit()
+            conn.close()
+        except Exception:
+            pass
 
     def db_fetchone(query, params=None):
         conn = get_db()
@@ -258,12 +304,26 @@ def creer():
     coach_signature = request.form.get("coach_signature", "")
     coach_date_sig = request.form.get("coach_date_sig", "")
 
+    # Coach info from form
+    coach_prenom = request.form.get("coach_prenom", "") or COACH.get("prenom", "")
+    coach_nom = request.form.get("coach_nom", "") or COACH.get("nom", "")
+    coach_raison = request.form.get("coach_raison", "") or COACH.get("raison_sociale", "")
+    coach_siret = request.form.get("coach_siret", "") or COACH.get("siret", "")
+    coach_adresse = request.form.get("coach_adresse", "") or COACH.get("adresse", "")
+    coach_email = request.form.get("coach_email", "") or COACH.get("email", "")
+    coach_tel = request.form.get("coach_tel", "") or COACH.get("telephone", "")
+    coach_ville = request.form.get("coach_ville", "")
+
     db_insert("""
         INSERT INTO contrats (id, contrat_date, date_debut, poids_actuel, poids_min,
-            poids_max, perte_min, perte_max, prix, coach_signature, coach_date_sig)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            poids_max, perte_min, perte_max, prix, coach_signature, coach_date_sig,
+            coach_prenom, coach_nom, coach_raison_sociale, coach_siret,
+            coach_adresse, coach_email, coach_telephone, coach_ville)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (contrat_id, contrat_date, date_debut, poids_actuel, poids_min,
-          poids_max, perte_min, perte_max, prix, coach_signature, coach_date_sig))
+          poids_max, perte_min, perte_max, prix, coach_signature, coach_date_sig,
+          coach_prenom, coach_nom, coach_raison, coach_siret,
+          coach_adresse, coach_email, coach_tel, coach_ville))
 
     return redirect(url_for("lien", contrat_id=contrat_id))
 
@@ -287,7 +347,19 @@ def signer(contrat_id):
     if contrat["status"] == "signe":
         return render_template("confirmation.html", contrat_id=contrat_id, already_signed=True)
 
-    return render_template("client_form.html", contrat=contrat, coach=COACH)
+    # Build coach info from DB (saved at contract creation)
+    contrat_coach = {
+        "prenom": contrat.get("coach_prenom", "") or COACH.get("prenom", ""),
+        "nom": contrat.get("coach_nom", "") or COACH.get("nom", ""),
+        "raison_sociale": contrat.get("coach_raison_sociale", "") or COACH.get("raison_sociale", ""),
+        "siret": contrat.get("coach_siret", "") or COACH.get("siret", ""),
+        "adresse": contrat.get("coach_adresse", "") or COACH.get("adresse", ""),
+        "email": contrat.get("coach_email", "") or COACH.get("email", ""),
+        "telephone": contrat.get("coach_telephone", "") or COACH.get("telephone", ""),
+        "ville": contrat.get("coach_ville", ""),
+    }
+
+    return render_template("client_form.html", contrat=contrat, coach=contrat_coach)
 
 
 @app.route("/finaliser/<contrat_id>", methods=["POST"])
@@ -333,7 +405,19 @@ def finaliser(contrat_id):
     filename = f"contrat_{safe_name}_{timestamp}.pdf"
     pdf_path = os.path.join(PDF_DIR, filename)
 
-    generate_contract_pdf(contrat_data, COACH, pdf_path)
+    # Build coach info from DB
+    contrat_coach = {
+        "prenom": contrat.get("coach_prenom", "") or COACH.get("prenom", ""),
+        "nom": contrat.get("coach_nom", "") or COACH.get("nom", ""),
+        "raison_sociale": contrat.get("coach_raison_sociale", "") or COACH.get("raison_sociale", ""),
+        "siret": contrat.get("coach_siret", "") or COACH.get("siret", ""),
+        "adresse": contrat.get("coach_adresse", "") or COACH.get("adresse", ""),
+        "email": contrat.get("coach_email", "") or COACH.get("email", ""),
+        "telephone": contrat.get("coach_telephone", "") or COACH.get("telephone", ""),
+        "ville": contrat.get("coach_ville", ""),
+    }
+
+    generate_contract_pdf(contrat_data, contrat_coach, pdf_path)
 
     # Read PDF bytes and store in DB
     with open(pdf_path, "rb") as f:
