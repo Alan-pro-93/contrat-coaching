@@ -398,12 +398,27 @@ def finaliser(contrat_id):
         "client_signature": client_signature,
     })
 
-    # Generate PDF to temp file, then read bytes
-    safe_name = f"{client_prenom}_{client_nom}".replace(" ", "_")
-    safe_name = "".join(c for c in safe_name if c.isalnum() or c in "_-")
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"contrat_{safe_name}_{timestamp}.pdf"
-    pdf_path = os.path.join(PDF_DIR, filename)
+    db_update("""
+        UPDATE contrats SET
+            status = 'signe',
+            client_prenom = ?, client_nom = ?, client_adresse = ?,
+            client_email = ?, client_tel = ?, client_lieu = ?,
+            client_date_sig = ?, client_prenom_sig = ?, client_nom_sig = ?,
+            client_signature = ?
+        WHERE id = ?
+    """, (client_prenom, client_nom, client_adresse, client_email, client_tel,
+          client_lieu, client_date_sig, client_prenom_sig, client_nom_sig,
+          client_signature, contrat_id))
+
+    return render_template("confirmation.html", contrat_id=contrat_id, already_signed=False)
+
+
+@app.route("/telecharger/<contrat_id>")
+def telecharger(contrat_id):
+    contrat = db_fetchone("SELECT * FROM contrats WHERE id = ?", (contrat_id,))
+
+    if not contrat or contrat.get("status") != "signe":
+        abort(404)
 
     # Build coach info from DB
     contrat_coach = {
@@ -417,55 +432,24 @@ def finaliser(contrat_id):
         "ville": contrat.get("coach_ville", ""),
     }
 
-    generate_contract_pdf(contrat_data, contrat_coach, pdf_path)
-
-    # Read PDF bytes and store in DB
-    with open(pdf_path, "rb") as f:
-        pdf_bytes = f.read()
-
-    # Clean up temp file
-    try:
-        os.remove(pdf_path)
-    except OSError:
-        pass
-
-    if use_postgres:
-        pdf_param = psycopg2.Binary(pdf_bytes)
-    else:
-        pdf_param = pdf_bytes
-
-    db_update("""
-        UPDATE contrats SET
-            status = 'signe',
-            client_prenom = ?, client_nom = ?, client_adresse = ?,
-            client_email = ?, client_tel = ?, client_lieu = ?,
-            client_date_sig = ?, client_prenom_sig = ?, client_nom_sig = ?,
-            client_signature = ?, pdf_data = ?
-        WHERE id = ?
-    """, (client_prenom, client_nom, client_adresse, client_email, client_tel,
-          client_lieu, client_date_sig, client_prenom_sig, client_nom_sig,
-          client_signature, pdf_param, contrat_id))
-
-    return render_template("confirmation.html", contrat_id=contrat_id, already_signed=False)
-
-
-@app.route("/telecharger/<contrat_id>")
-def telecharger(contrat_id):
-    contrat = db_fetchone("SELECT * FROM contrats WHERE id = ?", (contrat_id,))
-
-    if not contrat or not contrat.get("pdf_data"):
-        abort(404)
-
-    pdf_bytes = contrat["pdf_data"]
-    if isinstance(pdf_bytes, memoryview):
-        pdf_bytes = bytes(pdf_bytes)
-
+    # Generate PDF on the fly
     safe_name = ""
     if contrat.get("client_prenom") and contrat.get("client_nom"):
         safe_name = f"{contrat['client_prenom']}_{contrat['client_nom']}".replace(" ", "_")
         safe_name = "".join(c for c in safe_name if c.isalnum() or c in "_-")
 
     filename = f"contrat_{safe_name or contrat_id}.pdf"
+    pdf_path = os.path.join(PDF_DIR, filename)
+
+    generate_contract_pdf(dict(contrat), contrat_coach, pdf_path)
+
+    with open(pdf_path, "rb") as f:
+        pdf_bytes = f.read()
+
+    try:
+        os.remove(pdf_path)
+    except OSError:
+        pass
 
     return send_file(
         io.BytesIO(pdf_bytes),
