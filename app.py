@@ -9,6 +9,7 @@ from flask import (
     Flask, render_template, request, redirect, url_for,
     flash, session, send_file, abort
 )
+from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
 
 from utils.pdf_generator import generate_contract_pdf
@@ -18,6 +19,7 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "contrat-coaching-secret-key-change-me")
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB max
+csrf = CSRFProtect(app)
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
 PDF_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pdfs")
@@ -243,7 +245,7 @@ def creer():
     if not coach_logged_in():
         return redirect(url_for("index"))
 
-    contrat_id = str(uuid.uuid4())[:8]
+    contrat_id = str(uuid.uuid4())
 
     contrat_date = request.form.get("contrat_date", "")
     date_debut = request.form.get("date_debut", "")

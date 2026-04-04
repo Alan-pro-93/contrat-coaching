@@ -278,6 +278,7 @@
         </div>
 
         <form id="delete-form" method="POST" action="/supprimer">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <table>
             <thead>
                 <tr>

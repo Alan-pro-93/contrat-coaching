@@ -196,6 +196,7 @@
 <body>
 
 <form method="POST" action="/finaliser/{{ contrat.id }}" id="client-form">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 <div class="page-wrapper">
 
     <h1>CONTRAT D'ACCOMPAGNEMENT PERSONNALISÉ</h1>

@@ -76,6 +76,7 @@
         <h2>ACCÈS SÉCURISÉ</h2>
         <p>Veuillez entrer le mot de passe pour accéder à l'espace coach.</p>
         <form method="POST" action="/login">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="password" name="password" placeholder="Mot de passe" autofocus>
             <button type="submit" class="btn-access">ACCÉDER</button>
         </form>
