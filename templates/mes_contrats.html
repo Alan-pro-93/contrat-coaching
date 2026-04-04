@@ -373,15 +373,15 @@
         <!-- Stats -->
         <div class="stats-bar">
             <span class="stat-badge stat-total" id="stat-total">Total : {{ contrats|length }}</span>
-            <span class="stat-badge stat-signe" id="stat-signe">Signes : 0</span>
+            <span class="stat-badge stat-signe" id="stat-signe">Signés : 0</span>
             <span class="stat-badge stat-attente" id="stat-attente">En attente : 0</span>
-            <span class="stat-badge stat-argent" id="stat-argent">Contracte : 0 €</span>
+            <span class="stat-badge stat-argent" id="stat-argent">Argent Contracté : 0 €</span>
         </div>
 
         <!-- Actions -->
         <div class="bulk-actions">
-            <button class="btn-bulk btn-select-all" onclick="toggleSelectAll()">Tout selectionner</button>
-            <button class="btn-bulk btn-delete-selected" id="btn-delete-selected" onclick="showDeleteModal()">Supprimer la selection</button>
+            <button class="btn-bulk btn-select-all" onclick="toggleSelectAll()">Tout sélectionner</button>
+            <button class="btn-bulk btn-delete-selected" id="btn-delete-selected" onclick="showDeleteModal()">Supprimer la sélection</button>
             <span class="selected-count" id="selected-count"></span>
         </div>
 
@@ -416,7 +416,7 @@
                     <td data-label="Prix">{{ c.prix }} € TTC</td>
                     <td data-label="Statut">
                         {% if c.status == 'signe' %}
-                            <span class="status-signe">SIGNE</span>
+                            <span class="status-signe">SIGNÉ</span>
                         {% else %}
                             <span class="status-attente">EN ATTENTE</span>
                         {% endif %}
@@ -424,7 +424,7 @@
                     <td data-label="Actions">
                         <a href="/lien/{{ c.id }}" class="action-link">Voir lien</a>
                         {% if c.status == 'signe' %}
-                        <a href="/telecharger/{{ c.id }}" class="action-link">Telecharger PDF</a>
+                        <a href="/telecharger/{{ c.id }}" class="action-link">Télécharger PDF</a>
                         {% endif %}
                         <button type="button" class="btn-delete-single" onclick="deleteSingle('{{ c.id }}')">Supprimer</button>
                     </td>
@@ -433,14 +433,14 @@
             </tbody>
         </table>
         </form>
-        <p class="no-results" id="no-results">Aucun contrat trouve.</p>
+        <p class="no-results" id="no-results">Aucun contrat trouvé.</p>
         {% endif %}
     </div>
 
     <!-- Modal de confirmation -->
     <div class="modal-overlay" id="delete-modal">
         <div class="modal-box">
-            <p id="modal-text">Etes-vous sur de vouloir supprimer les contrats selectionnes ? Cette action est irreversible.</p>
+            <p id="modal-text">Êtes-vous sûr de vouloir supprimer les contrats sélectionnés ? Cette action est irréversible.</p>
             <div class="modal-btns">
                 <button class="btn-cancel" onclick="hideDeleteModal()">Annuler</button>
                 <button class="btn-confirm-delete" onclick="confirmDelete()">Supprimer</button>
@@ -549,9 +549,9 @@
 
         // Update stats
         document.getElementById('stat-total').textContent = 'Total : ' + totalVisible;
-        document.getElementById('stat-signe').textContent = 'Signes : ' + signeVisible;
+        document.getElementById('stat-signe').textContent = 'Sign\u00e9s : ' + signeVisible;
         document.getElementById('stat-attente').textContent = 'En attente : ' + attenteVisible;
-        document.getElementById('stat-argent').textContent = 'Contracte : ' + argentTotal.toLocaleString('fr-FR') + ' €';
+        document.getElementById('stat-argent').textContent = 'Argent Contract\u00e9 : ' + argentTotal.toLocaleString('fr-FR') + ' \u20ac';
 
         // No results
         var noResults = document.getElementById('no-results');
@@ -571,7 +571,7 @@
             if (allSelected) { row.classList.add('selected'); }
             else { row.classList.remove('selected'); }
         }
-        document.querySelector('.btn-select-all').textContent = allSelected ? 'Tout deselectionner' : 'Tout selectionner';
+        document.querySelector('.btn-select-all').textContent = allSelected ? 'Tout d\u00e9s\u00e9lectionner' : 'Tout s\u00e9lectionner';
         updateSelection();
     }
 
@@ -584,7 +584,7 @@
         if (count > 0) {
             btnDelete.style.display = 'inline-block';
             countText.style.display = 'inline-block';
-            countText.textContent = count + ' contrat' + (count > 1 ? 's' : '') + ' selectionne' + (count > 1 ? 's' : '');
+            countText.textContent = count + ' contrat' + (count > 1 ? 's' : '') + ' s\u00e9lectionn\u00e9' + (count > 1 ? 's' : '');
         } else {
             btnDelete.style.display = 'none';
             countText.style.display = 'none';
@@ -601,7 +601,7 @@
     /* ── Suppression ── */
     function deleteSingle(id) {
         singleDeleteId = id;
-        document.getElementById('modal-text').textContent = 'Etes-vous sur de vouloir supprimer ce contrat ? Cette action est irreversible.';
+        document.getElementById('modal-text').textContent = '\u00cates-vous s\u00fbr de vouloir supprimer ce contrat ? Cette action est irr\u00e9versible.';
         showDeleteModal();
     }
 
