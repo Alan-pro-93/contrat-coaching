@@ -55,6 +55,98 @@
             border-bottom: 2px solid #1a1a2e;
             padding-bottom: 12px;
         }
+
+        /* Filtres */
+        .filters-section {
+            margin-bottom: 20px;
+        }
+        .search-bar {
+            margin-bottom: 12px;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+        }
+        .search-bar input:focus {
+            outline: none;
+            border-color: #1a1a2e;
+        }
+        .date-filters {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .filter-btn {
+            padding: 7px 14px;
+            font-size: 12px;
+            font-family: Arial, sans-serif;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            background: white;
+            color: #555;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover { border-color: #1a1a2e; color: #1a1a2e; }
+        .filter-btn.active {
+            background: #1a1a2e;
+            color: white;
+            border-color: #1a1a2e;
+        }
+        .custom-dates {
+            display: none;
+            gap: 8px;
+            align-items: center;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .custom-dates.visible { display: flex; }
+        .custom-dates label {
+            font-size: 12px;
+            font-family: Arial, sans-serif;
+            color: #555;
+            font-weight: bold;
+        }
+        .custom-dates input[type="date"] {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: Arial, sans-serif;
+        }
+        .custom-dates input[type="date"]:focus {
+            outline: none;
+            border-color: #1a1a2e;
+        }
+
+        /* Stats */
+        .stats-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .stat-badge {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            letter-spacing: 0.3px;
+        }
+        .stat-total { background: #1a1a2e; }
+        .stat-signe { background: #27ae60; }
+        .stat-attente { background: #e67e22; }
+        .stat-argent { background: #2980b9; }
+
+        /* Bulk actions */
         .bulk-actions {
             display: flex;
             gap: 10px;
@@ -88,6 +180,8 @@
             font-family: Arial, sans-serif;
             display: none;
         }
+
+        /* Table */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -159,6 +253,15 @@
             padding: 40px;
             font-size: 14px;
         }
+        .no-results {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-size: 13px;
+            font-family: Arial, sans-serif;
+            display: none;
+        }
+
         @media (max-width: 600px) {
             table, thead, tbody, th, td, tr { display: block; }
             thead { display: none; }
@@ -174,7 +277,10 @@
                 display: block;
                 margin-bottom: 2px;
             }
+            .stats-bar { gap: 6px; }
+            .stat-badge { font-size: 11px; padding: 6px 10px; }
         }
+
         /* Modal confirmation */
         .modal-overlay {
             display: none;
@@ -226,29 +332,6 @@
             font-family: Arial, sans-serif;
         }
         .modal-box .btn-confirm-delete:hover { background: #a93226; }
-        .search-bar {
-            margin-bottom: 20px;
-        }
-        .search-bar input {
-            width: 100%;
-            padding: 10px 15px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            font-family: Arial, sans-serif;
-        }
-        .search-bar input:focus {
-            outline: none;
-            border-color: #1a1a2e;
-        }
-        .no-results {
-            text-align: center;
-            color: #999;
-            padding: 20px;
-            font-size: 13px;
-            font-family: Arial, sans-serif;
-            display: none;
-        }
     </style>
 </head>
 <body>
@@ -267,16 +350,42 @@
         <p class="empty-msg">Aucun contrat pour le moment. <a href="/nouveau">Créer un nouveau contrat</a>.</p>
         {% else %}
 
-        <div class="search-bar">
-            <input type="text" id="search-input" placeholder="Rechercher par nom ou prénom..." oninput="filterContrats()">
+        <!-- Filtres -->
+        <div class="filters-section">
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Rechercher par nom ou prénom..." oninput="applyFilters()">
+            </div>
+            <div class="date-filters">
+                <button class="filter-btn active" data-period="all" onclick="setPeriod('all', this)">Tout</button>
+                <button class="filter-btn" data-period="7" onclick="setPeriod('7', this)">7 derniers jours</button>
+                <button class="filter-btn" data-period="30" onclick="setPeriod('30', this)">30 derniers jours</button>
+                <button class="filter-btn" data-period="90" onclick="setPeriod('90', this)">90 derniers jours</button>
+                <button class="filter-btn" data-period="custom" onclick="setPeriod('custom', this)">Personnaliser</button>
+            </div>
+            <div class="custom-dates" id="custom-dates">
+                <label>Du</label>
+                <input type="date" id="date-from" onchange="applyFilters()">
+                <label>Au</label>
+                <input type="date" id="date-to" onchange="applyFilters()">
+            </div>
         </div>
 
+        <!-- Stats -->
+        <div class="stats-bar">
+            <span class="stat-badge stat-total" id="stat-total">Total : {{ contrats|length }}</span>
+            <span class="stat-badge stat-signe" id="stat-signe">Signes : 0</span>
+            <span class="stat-badge stat-attente" id="stat-attente">En attente : 0</span>
+            <span class="stat-badge stat-argent" id="stat-argent">Contracte : 0 €</span>
+        </div>
+
+        <!-- Actions -->
         <div class="bulk-actions">
-            <button class="btn-bulk btn-select-all" onclick="toggleSelectAll()">Tout sélectionner</button>
-            <button class="btn-bulk btn-delete-selected" id="btn-delete-selected" onclick="showDeleteModal()">Supprimer la sélection</button>
+            <button class="btn-bulk btn-select-all" onclick="toggleSelectAll()">Tout selectionner</button>
+            <button class="btn-bulk btn-delete-selected" id="btn-delete-selected" onclick="showDeleteModal()">Supprimer la selection</button>
             <span class="selected-count" id="selected-count"></span>
         </div>
 
+        <!-- Table -->
         <form id="delete-form" method="POST" action="/supprimer">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <table>
@@ -292,7 +401,7 @@
             </thead>
             <tbody>
                 {% for c in contrats %}
-                <tr id="row-{{ c.id }}">
+                <tr id="row-{{ c.id }}" data-date="{{ c.contrat_date or '' }}" data-status="{{ c.status }}" data-prix="{{ c.prix or '0' }}">
                     <td class="td-check">
                         <input type="checkbox" name="ids" value="{{ c.id }}" onchange="updateSelection()">
                     </td>
@@ -307,7 +416,7 @@
                     <td data-label="Prix">{{ c.prix }} € TTC</td>
                     <td data-label="Statut">
                         {% if c.status == 'signe' %}
-                            <span class="status-signe">SIGNÉ</span>
+                            <span class="status-signe">SIGNE</span>
                         {% else %}
                             <span class="status-attente">EN ATTENTE</span>
                         {% endif %}
@@ -315,7 +424,7 @@
                     <td data-label="Actions">
                         <a href="/lien/{{ c.id }}" class="action-link">Voir lien</a>
                         {% if c.status == 'signe' %}
-                        <a href="/telecharger/{{ c.id }}" class="action-link">Télécharger PDF</a>
+                        <a href="/telecharger/{{ c.id }}" class="action-link">Telecharger PDF</a>
                         {% endif %}
                         <button type="button" class="btn-delete-single" onclick="deleteSingle('{{ c.id }}')">Supprimer</button>
                     </td>
@@ -324,14 +433,14 @@
             </tbody>
         </table>
         </form>
-        <p class="no-results" id="no-results">Aucun contrat trouvé.</p>
+        <p class="no-results" id="no-results">Aucun contrat trouve.</p>
         {% endif %}
     </div>
 
     <!-- Modal de confirmation -->
     <div class="modal-overlay" id="delete-modal">
         <div class="modal-box">
-            <p id="modal-text">Êtes-vous sûr de vouloir supprimer les contrats sélectionnés ? Cette action est irréversible.</p>
+            <p id="modal-text">Etes-vous sur de vouloir supprimer les contrats selectionnes ? Cette action est irreversible.</p>
             <div class="modal-btns">
                 <button class="btn-cancel" onclick="hideDeleteModal()">Annuler</button>
                 <button class="btn-confirm-delete" onclick="confirmDelete()">Supprimer</button>
@@ -342,17 +451,127 @@
 <script>
     var allSelected = false;
     var singleDeleteId = null;
+    var currentPeriod = 'all';
 
+    /* ── Filtre par periode ── */
+    function setPeriod(period, btn) {
+        currentPeriod = period;
+        // Update active button
+        var btns = document.querySelectorAll('.filter-btn');
+        for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+        btn.classList.add('active');
+        // Show/hide custom dates
+        var customDates = document.getElementById('custom-dates');
+        if (period === 'custom') {
+            customDates.classList.add('visible');
+        } else {
+            customDates.classList.remove('visible');
+        }
+        applyFilters();
+    }
+
+    function getDateRange() {
+        var now = new Date();
+        var from = null;
+        var to = null;
+
+        if (currentPeriod === 'all') {
+            return { from: null, to: null };
+        } else if (currentPeriod === 'custom') {
+            var fromVal = document.getElementById('date-from').value;
+            var toVal = document.getElementById('date-to').value;
+            if (fromVal) from = new Date(fromVal + 'T00:00:00');
+            if (toVal) to = new Date(toVal + 'T23:59:59');
+            return { from: from, to: to };
+        } else {
+            var days = parseInt(currentPeriod);
+            from = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+            from.setHours(0, 0, 0, 0);
+            return { from: from, to: null };
+        }
+    }
+
+    function parseDate(dateStr) {
+        if (!dateStr) return null;
+        var d = new Date(dateStr + 'T00:00:00');
+        if (isNaN(d.getTime())) return null;
+        return d;
+    }
+
+    /* ── Appliquer tous les filtres (texte + date) ── */
+    function applyFilters() {
+        var query = document.getElementById('search-input').value.toLowerCase().trim();
+        var range = getDateRange();
+        var rows = document.querySelectorAll('tbody tr');
+        var visible = 0;
+        var totalVisible = 0;
+        var signeVisible = 0;
+        var attenteVisible = 0;
+        var argentTotal = 0;
+
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            var clientCell = row.querySelector('td[data-label="Client"]');
+            var clientText = clientCell ? clientCell.textContent.toLowerCase() : '';
+            var rowDate = parseDate(row.getAttribute('data-date'));
+            var status = row.getAttribute('data-status');
+            var prix = parseFloat(row.getAttribute('data-prix')) || 0;
+
+            // Text filter
+            var matchText = (query === '' || clientText.indexOf(query) !== -1);
+
+            // Date filter
+            var matchDate = true;
+            if (range.from && rowDate) {
+                if (rowDate < range.from) matchDate = false;
+            }
+            if (range.to && rowDate) {
+                if (rowDate > range.to) matchDate = false;
+            }
+            if ((range.from || range.to) && !rowDate) {
+                matchDate = false;
+            }
+
+            if (matchText && matchDate) {
+                row.style.display = '';
+                visible++;
+                totalVisible++;
+                if (status === 'signe') {
+                    signeVisible++;
+                    argentTotal += prix;
+                } else {
+                    attenteVisible++;
+                }
+            } else {
+                row.style.display = 'none';
+            }
+        }
+
+        // Update stats
+        document.getElementById('stat-total').textContent = 'Total : ' + totalVisible;
+        document.getElementById('stat-signe').textContent = 'Signes : ' + signeVisible;
+        document.getElementById('stat-attente').textContent = 'En attente : ' + attenteVisible;
+        document.getElementById('stat-argent').textContent = 'Contracte : ' + argentTotal.toLocaleString('fr-FR') + ' €';
+
+        // No results
+        var noResults = document.getElementById('no-results');
+        if (noResults) {
+            noResults.style.display = (visible === 0) ? 'block' : 'none';
+        }
+    }
+
+    /* ── Selection ── */
     function toggleSelectAll() {
         var checkboxes = document.querySelectorAll('input[name="ids"]');
         allSelected = !allSelected;
         for (var i = 0; i < checkboxes.length; i++) {
-            checkboxes[i].checked = allSelected;
             var row = checkboxes[i].closest('tr');
+            if (row.style.display === 'none') continue;
+            checkboxes[i].checked = allSelected;
             if (allSelected) { row.classList.add('selected'); }
             else { row.classList.remove('selected'); }
         }
-        document.querySelector('.btn-select-all').textContent = allSelected ? 'Tout désélectionner' : 'Tout sélectionner';
+        document.querySelector('.btn-select-all').textContent = allSelected ? 'Tout deselectionner' : 'Tout selectionner';
         updateSelection();
     }
 
@@ -365,13 +584,12 @@
         if (count > 0) {
             btnDelete.style.display = 'inline-block';
             countText.style.display = 'inline-block';
-            countText.textContent = count + ' contrat' + (count > 1 ? 's' : '') + ' sélectionné' + (count > 1 ? 's' : '');
+            countText.textContent = count + ' contrat' + (count > 1 ? 's' : '') + ' selectionne' + (count > 1 ? 's' : '');
         } else {
             btnDelete.style.display = 'none';
             countText.style.display = 'none';
         }
 
-        // Update row highlight
         var allBoxes = document.querySelectorAll('input[name="ids"]');
         for (var i = 0; i < allBoxes.length; i++) {
             var row = allBoxes[i].closest('tr');
@@ -380,9 +598,10 @@
         }
     }
 
+    /* ── Suppression ── */
     function deleteSingle(id) {
         singleDeleteId = id;
-        document.getElementById('modal-text').textContent = 'Êtes-vous sûr de vouloir supprimer ce contrat ? Cette action est irréversible.';
+        document.getElementById('modal-text').textContent = 'Etes-vous sur de vouloir supprimer ce contrat ? Cette action est irreversible.';
         showDeleteModal();
     }
 
@@ -395,41 +614,21 @@
         singleDeleteId = null;
     }
 
-    function filterContrats() {
-        var query = document.getElementById('search-input').value.toLowerCase().trim();
-        var rows = document.querySelectorAll('tbody tr');
-        var visible = 0;
-        for (var i = 0; i < rows.length; i++) {
-            var clientCell = rows[i].querySelector('td[data-label="Client"]');
-            var text = clientCell ? clientCell.textContent.toLowerCase() : '';
-            if (query === '' || text.indexOf(query) !== -1) {
-                rows[i].style.display = '';
-                visible++;
-            } else {
-                rows[i].style.display = 'none';
-            }
-        }
-        var noResults = document.getElementById('no-results');
-        if (noResults) {
-            noResults.style.display = (visible === 0 && query !== '') ? 'block' : 'none';
-        }
-    }
-
     function confirmDelete() {
         if (singleDeleteId) {
-            // Single delete
             var form = document.getElementById('delete-form');
-            // Uncheck all, check only the target
             var checkboxes = document.querySelectorAll('input[name="ids"]');
             for (var i = 0; i < checkboxes.length; i++) {
                 checkboxes[i].checked = (checkboxes[i].value === singleDeleteId);
             }
             form.submit();
         } else {
-            // Bulk delete
             document.getElementById('delete-form').submit();
         }
     }
+
+    /* ── Init stats au chargement ── */
+    applyFilters();
 </script>
 </body>
 </html>
