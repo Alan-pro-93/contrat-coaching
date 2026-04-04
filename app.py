@@ -27,13 +27,13 @@ PDF_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pdfs")
 COACH_PASSWORD = os.environ.get("COACH_PASSWORD", "MNS-12345-MNS")
 
 COACH = {
-    "prenom": "ALAN",
-    "nom": "SENNOUN",
-    "raison_sociale": "E-PartnerPro",
-    "siret": "98124052600013",
-    "adresse": "159 Avenue du Marechal Foch - Neuilly-Plaisance (93360)",
-    "email": "contact@protocolemns.com",
-    "telephone": "07 83 78 92 39",
+    "prenom": "",
+    "nom": "",
+    "raison_sociale": "",
+    "siret": "",
+    "adresse": "",
+    "email": "",
+    "telephone": "",
 }
 
 # ─── Database ───
