@@ -258,8 +258,14 @@
                     <label>Poids visé max (kg)</label>
                     <input type="number" name="poids_max" step="0.1" placeholder="ex: 75" required>
                 </div>
-                <input type="hidden" name="perte_min">
-                <input type="hidden" name="perte_max">
+                <div class="field-group">
+                    <label>Perte min (kg) — auto</label>
+                    <input type="number" name="perte_min" step="0.1" readonly style="background:#e8e8e8; color:#555;">
+                </div>
+                <div class="field-group">
+                    <label>Perte max (kg) — auto</label>
+                    <input type="number" name="perte_max" step="0.1" readonly style="background:#e8e8e8; color:#555;">
+                </div>
                 <div class="field-group">
                     <label>Prix TTC (€)</label>
                     <input type="number" name="prix" step="0.01" placeholder="ex: 499" required>
