@@ -346,10 +346,6 @@
     <div class="page-wrapper">
         <h1>LISTE DES CONTRATS</h1>
 
-        {% if contrats|length == 0 %}
-        <p class="empty-msg">Aucun contrat pour le moment. <a href="/nouveau">Créer un nouveau contrat</a>.</p>
-        {% else %}
-
         <!-- Filtres -->
         <div class="filters-section">
             <div class="search-bar">
@@ -442,11 +438,13 @@
                     </td>
                 </tr>
                 {% endfor %}
+            {% if contrats|length == 0 %}
+                <tr><td colspan="6" class="empty-msg">Aucun contrat pour le moment. <a href="/nouveau">Créer un nouveau contrat</a>.</td></tr>
+            {% endif %}
             </tbody>
         </table>
         </form>
         <p class="no-results" id="no-results">Aucun contrat trouvé.</p>
-        {% endif %}
     </div>
 
     <!-- Modal de confirmation -->
