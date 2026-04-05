@@ -439,7 +439,7 @@
                 </tr>
                 {% endfor %}
             {% if contrats|length == 0 %}
-                <tr><td colspan="6" class="empty-msg">Aucun contrat pour le moment. <a href="/nouveau">Créer un nouveau contrat</a>.</td></tr>
+                <tr class="empty-row"><td colspan="6" class="empty-msg">Aucun contrat pour le moment. <a href="/nouveau">Créer un nouveau contrat</a>.</td></tr>
             {% endif %}
             </tbody>
         </table>
@@ -521,6 +521,7 @@
 
         for (var i = 0; i < rows.length; i++) {
             var row = rows[i];
+            if (row.classList.contains('empty-row')) continue;
             var clientCell = row.querySelector('td[data-label="Client"]');
             var clientText = clientCell ? clientCell.textContent.toLowerCase() : '';
             var rowDate = parseDate(row.getAttribute('data-date'));
