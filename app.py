@@ -488,7 +488,12 @@ def logout():
 
 @app.route("/health")
 def health():
-    return "OK", 200
+    try:
+        db_fetchone("SELECT 1 AS ok")
+    except Exception:
+        app.logger.exception("Database health check failed")
+        return "DB ERROR", 503
+    return "OK DB", 200
 
 
 if __name__ == "__main__":
